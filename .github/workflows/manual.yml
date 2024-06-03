@@ -1,0 +1,42 @@
+name: Manual Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_message:
+        description: 'Deployment commit message'
+        default: 'Merge develop branch into github_page'
+        required: true
+        type: string
+      merge_develop:
+        description: 'Merge develop branch into github_page'
+        default: true
+        required: true
+        type: boolean
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: github_page
+
+    - name: Fetch all branches
+      run: git fetch --all
+
+    - name: Merge develop into github_page and deploy
+      if: ${{ inputs.merge_develop }}
+      run: |
+        git fetch origin
+        git checkout github_page
+        git merge origin/develop
+        git config --global user.name "${{ github.actor }}"
+        git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+        git add .
+        git commit --allow-empty -m "${{ inputs.deploy_message }}"
+        git push origin HEAD:github_page
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
