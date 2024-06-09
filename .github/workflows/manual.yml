@@ -37,7 +37,7 @@ jobs:
       run: |
         git fetch origin
         git checkout github_page
-        git merge origin/develop --allow-unrelated-histories || echo "Merge conflict detected. Please resolve conflicts manually."
+        git merge origin/develop --allow-unrelated-histories || exit 1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
