@@ -32,14 +32,38 @@ jobs:
         git config --global user.name "${{ github.actor }}"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-    - name: Merge develop into github_page and deploy
+    - name: Merge develop into github_page
       if: ${{ inputs.merge_develop }}
       run: |
         git fetch origin
         git checkout github_page
-        git merge origin/develop --allow-unrelated-histories
-        git add .
-        git commit --allow-empty -m "${{ inputs.deploy_message }}"
-        git push origin HEAD:github_page
+        git merge origin/develop --allow-unrelated-histories || echo "Merge conflict detected. Please resolve conflicts manually."
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Commit and push changes
+      if: ${{ inputs.merge_develop }}
+      run: |
+        if git diff --cached --exit-code; then
+          echo "No changes to commit."
+        else
+          git add .
+          git commit -m "${{ inputs.deploy_message }}"
+          git push origin HEAD:github_page
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Notify conflict
+      if: ${{ failure() }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const { github, context } = require("@actions/github");
+          github.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.run_id,
+            body: "Merge conflict detected during deployment. Please resolve conflicts manually."
+          });
