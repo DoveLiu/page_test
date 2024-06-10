@@ -44,12 +44,12 @@ jobs:
     - name: Commit and push changes
       if: ${{ inputs.merge_develop }}
       run: |
-        if git status --porcelain | grep .; then
+        if git diff --exit-code; then
+          echo "No changes to commit."
+        else
           git add .
           git commit -m "${{ inputs.deploy_message }}"
           git push origin HEAD:github_page
-        else
-          echo "No changes to commit."
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
