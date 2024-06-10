@@ -44,7 +44,7 @@ jobs:
     - name: Commit and push changes
       if: ${{ inputs.merge_develop }}
       run: |
-        if git diff --cached --exit-code; then
+        if git diff --quiet; then
           echo "No changes to commit."
         else
           git add .
