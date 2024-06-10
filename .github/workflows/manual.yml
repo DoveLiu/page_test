@@ -32,12 +32,12 @@ jobs:
         git config --global user.name "${{ github.actor }}"
         git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-    - name: Merge develop into github_page
+    - name: Merge develop into github_page with theirs strategy
       if: ${{ inputs.merge_develop }}
       run: |
         git fetch origin
         git checkout github_page
-        git merge origin/develop --allow-unrelated-histories || exit 1
+        git merge -X theirs origin/develop || exit 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
