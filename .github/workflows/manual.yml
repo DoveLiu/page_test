@@ -45,7 +45,7 @@ jobs:
         if: ${{ inputs.merge_develop }}
         run: |
           git add -A
-          git commit -m "${{ inputs.deploy_message }}"
+          git diff-index --quiet HEAD || git commit -m "${{ inputs.deploy_message }}"
           git push origin github_page
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
