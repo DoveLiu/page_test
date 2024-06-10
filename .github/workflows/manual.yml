@@ -37,7 +37,7 @@ jobs:
       run: |
         git fetch origin
         git checkout github_page
-        git merge -X theirs origin/develop || exit 
+        git merge -X theirs origin/develop --allow-unrelated-histories || exit 1 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
